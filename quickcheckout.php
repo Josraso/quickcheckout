@@ -102,6 +102,15 @@ class QuickCheckout extends Module
 
     private function renderConfigForm()
     {
+        $cpmActive = $this->usesCustomerPaymentMethod();
+        $html      = '';
+
+        if ($cpmActive) {
+            $html .= $this->displayInformation(
+                $this->l('El módulo "Customer Payment Method" está instalado y activo. El método de pago se obtendrá automáticamente del método asignado a cada cliente. No es necesario configurar el campo "Método de pago asignado" a continuación.')
+            );
+        }
+
         // Transportistas activos
         $carriers    = Carrier::getCarriers($this->context->language->id, true);
         $carrierList = [['id_carrier' => 0, 'name' => $this->l('-- Selecciona un transportista --')]];
@@ -181,7 +190,9 @@ class QuickCheckout extends Module
                         'label'   => $this->l('Método de pago asignado'),
                         'name'    => 'QUICKCHECKOUT_PAYMENT_MODULE',
                         'options' => ['query' => $paymentList, 'id' => 'module', 'name' => 'name'],
-                        'desc'    => $this->l('Método de pago asignado automáticamente. Debe ser interno, sin redirección externa.'),
+                        'desc'    => $cpmActive
+                            ? $this->l('No necesario: el módulo Customer Payment Method gestiona el método de pago por cliente de forma automática.')
+                            : $this->l('Método de pago asignado automáticamente. Debe ser interno, sin redirección externa.'),
                     ],
                 ],
                 'submit' => ['title' => $this->l('Guardar')],
@@ -209,7 +220,7 @@ class QuickCheckout extends Module
                 in_array($g['id_group'], $savedGroupIds) ? true : false;
         }
 
-        return $helper->generateForm($fields_form);
+        return $html . $helper->generateForm($fields_form);
     }
 
     /* =========================================================
@@ -234,6 +245,36 @@ class QuickCheckout extends Module
     public function getConfiguredPaymentModule()
     {
         return (string) Configuration::get('QUICKCHECKOUT_PAYMENT_MODULE');
+    }
+
+    /**
+     * Indica si el módulo customerpaymentmethod está instalado y activo.
+     */
+    public function usesCustomerPaymentMethod(): bool
+    {
+        return Module::isInstalled('customerpaymentmethod') && Module::isEnabled('customerpaymentmethod');
+    }
+
+    /**
+     * Devuelve el nombre del módulo de pago a usar para el cliente dado.
+     * Si customerpaymentmethod está activo, lo obtiene de ahí.
+     * En caso contrario usa la configuración global del módulo.
+     *
+     * @return string Nombre del módulo de pago, o '' si no hay ninguno.
+     */
+    public function resolvePaymentModule(int $idCustomer = 0): string
+    {
+        if ($this->usesCustomerPaymentMethod()) {
+            $modelFile = _PS_MODULE_DIR_ . 'customerpaymentmethod/classes/CustomerPaymentMethodModel.php';
+            if (file_exists($modelFile)) {
+                require_once $modelFile;
+                $moduleName = CustomerPaymentMethodModel::getModuleByCustomer($idCustomer);
+                return $moduleName ?: '';
+            }
+            return '';
+        }
+
+        return $this->getConfiguredPaymentModule();
     }
 
     public function getQuickCheckoutUrl()

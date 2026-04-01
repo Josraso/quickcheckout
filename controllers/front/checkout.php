@@ -88,15 +88,18 @@ class QuickCheckoutCheckoutModuleFrontController extends ModuleFrontController
         }
 
         // ---- Método de pago ----
-        $paymentModule = $this->module->getConfiguredPaymentModule();
-        $paymentOk     = false;
-        $paymentError  = '';
-        if (!$paymentModule) {
-            $paymentError = $this->module->l('No hay ningún método de pago configurado. Contacta con el administrador.');
+        $paymentOk    = false;
+        $paymentError = '';
+
+        $paymentModuleName = $this->module->resolvePaymentModule((int) $customer->id);
+        if (!$paymentModuleName) {
+            $paymentError = $this->module->usesCustomerPaymentMethod()
+                ? $this->module->l('No tienes ningún método de pago asignado. Contacta con el administrador.')
+                : $this->module->l('No hay ningún método de pago configurado. Contacta con el administrador.');
         } else {
-            $inst = Module::getInstanceByName($paymentModule);
+            $inst = Module::getInstanceByName($paymentModuleName);
             if (!$inst || !$inst->active) {
-                $paymentError = $this->module->l('El método de pago configurado no está disponible. Contacta con el administrador.');
+                $paymentError = $this->module->l('El método de pago no está disponible. Contacta con el administrador.');
             } else {
                 $paymentOk = true;
             }

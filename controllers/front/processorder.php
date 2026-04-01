@@ -64,14 +64,17 @@ class QuickCheckoutProcessorderModuleFrontController extends ModuleFrontControll
         $cart->update();
 
         // Método de pago
-        $paymentModuleName = $this->module->getConfiguredPaymentModule();
+        $paymentModuleName = $this->module->resolvePaymentModule((int) $customer->id);
         if (!$paymentModuleName) {
-            $this->jsonError($this->module->l('No hay ningún método de pago configurado. Contacta con el administrador.'));
+            $error = $this->module->usesCustomerPaymentMethod()
+                ? $this->module->l('No tienes ningún método de pago asignado. Contacta con el administrador.')
+                : $this->module->l('No hay ningún método de pago configurado. Contacta con el administrador.');
+            $this->jsonError($error);
         }
 
         $paymentModule = Module::getInstanceByName($paymentModuleName);
         if (!$paymentModule || !$paymentModule->active) {
-            $this->jsonError($this->module->l('El método de pago configurado no está disponible.'));
+            $this->jsonError($this->module->l('El método de pago no está disponible.'));
         }
 
         // Crear el pedido
