@@ -1,0 +1,448 @@
+/* ============================================================
+   QuickCheckout — CSS v1.3
+   Layout: una columna. Estilo Warehouse / turquesa #25b9d7
+============================================================ */
+
+.qc-wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 10px 0 60px;
+}
+
+/* ---- Tarjeta base ---- */
+.qc-card {
+    background: #fff;
+    border: 1px solid #e4e4e4;
+    border-radius: 10px;
+    padding: 0;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.05);
+    overflow: hidden;
+}
+
+.qc-card__title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #222;
+    margin: 0;
+    padding: 18px 22px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.qc-icon {
+    width: 18px;
+    height: 18px;
+    color: #25b9d7;
+    flex-shrink: 0;
+}
+
+/* ============================================================
+   TABLA DE PRODUCTOS
+============================================================ */
+
+.qc-card--table { padding: 0; }
+
+.qc-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.qc-th {
+    background: #f7f8fa;
+    padding: 12px 20px;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: #999;
+    border-bottom: 1px solid #eee;
+    white-space: nowrap;
+}
+
+.qc-th--price,
+.qc-th--qty,
+.qc-th--total { text-align: right; }
+
+.qc-tr { border-bottom: 1px solid #f4f4f4; }
+.qc-tr:last-child { border-bottom: none; }
+.qc-tr:hover { background: #fafbfc; }
+
+.qc-td {
+    padding: 14px 20px;
+    vertical-align: middle;
+    color: #333;
+}
+
+.qc-td--price,
+.qc-td--qty,
+.qc-td--total { text-align: right; }
+
+.qc-td--total { font-weight: 700; }
+
+/* Celda producto */
+.qc-product-cell {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.qc-product-img-wrap {
+    flex-shrink: 0;
+    width: 64px;
+    height: 64px;
+    border-radius: 6px;
+    border: 1px solid #eee;
+    background: #f9f9f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    text-decoration: none;
+}
+
+.qc-product-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.qc-product-img-empty { font-size: 1.6rem; color: #ccc; }
+
+.qc-product-meta { display: flex; flex-direction: column; gap: 3px; }
+
+.qc-product-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #222;
+    text-decoration: none;
+    line-height: 1.35;
+}
+.qc-product-name:hover { color: #25b9d7; }
+
+.qc-product-attr { font-size: 0.78rem; color: #aaa; }
+
+.qc-ref { font-size: 0.78rem; color: #bbb; font-family: monospace; }
+
+.qc-qty-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+    padding: 0 8px;
+    background: #f0f0f0;
+    border-radius: 14px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #555;
+}
+
+/* ============================================================
+   TOTALES
+============================================================ */
+
+.qc-card--totals { padding: 0 22px; }
+
+.qc-totals { padding: 4px 0; }
+
+.qc-totals__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 11px 0;
+    font-size: 0.9rem;
+    color: #555;
+    border-bottom: 1px solid #f5f5f5;
+}
+.qc-totals__row:last-child { border-bottom: none; }
+
+.qc-totals__row--total {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #111;
+    border-top: 2px solid #222;
+    border-bottom: none;
+    padding-top: 14px;
+    margin-top: 4px;
+}
+
+.qc-free { color: #27ae60; font-weight: 700; font-style: normal; }
+
+/* ============================================================
+   DIRECCIÓN
+============================================================ */
+
+/* Dirección única */
+.qc-address-single {
+    border: 2px solid #25b9d7;
+    border-radius: 8px;
+    background: #f0fafd;
+    padding: 14px 18px;
+    margin: 0 22px 12px;
+}
+
+.qc-address-single__name {
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: #222;
+    margin-bottom: 4px;
+}
+
+.qc-address-single__line {
+    font-size: 0.84rem;
+    color: #666;
+    line-height: 1.5;
+}
+
+/* Grid de direcciones (2+) */
+.qc-address-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 12px;
+    padding: 0 22px 12px;
+}
+
+.qc-address-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    border: 2px solid #e4e4e4;
+    border-radius: 8px;
+    padding: 14px 16px;
+    cursor: pointer;
+    user-select: none;
+    transition: border-color .15s, background .15s;
+    background: #fff;
+}
+
+.qc-address-card:hover {
+    border-color: #25b9d7;
+    background: #f7fdfe;
+}
+
+.qc-address-card--active {
+    border-color: #25b9d7 !important;
+    background: #f0fafd !important;
+}
+
+/* Punto indicador */
+.qc-address-card__dot {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid #ccc;
+    margin-top: 2px;
+    transition: border-color .15s, background .15s;
+    position: relative;
+}
+
+.qc-address-card__dot::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #25b9d7;
+    transition: transform .15s;
+}
+
+.qc-address-card--active .qc-address-card__dot {
+    border-color: #25b9d7;
+}
+
+.qc-address-card--active .qc-address-card__dot::after {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+/* Texto dirección */
+.qc-address-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.qc-address-card__alias {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: #25b9d7;
+}
+
+.qc-address-card__name {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #222;
+}
+
+.qc-address-card__line {
+    font-size: 0.82rem;
+    color: #777;
+    line-height: 1.4;
+}
+
+/* Padding interior para las secciones de la tarjeta de dirección */
+#qc-address-block .qc-notice,
+#qc-address-block .qc-btn,
+#qc-address-block .qc-link {
+    margin-left: 22px;
+    margin-right: 22px;
+}
+
+/* ============================================================
+   BOTÓN Y ACCIONES
+============================================================ */
+
+.qc-actions { margin-top: 6px; }
+
+.qc-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 24px;
+    border-radius: 6px;
+    font-size: 0.97rem;
+    font-weight: 700;
+    border: 2px solid transparent;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background .15s, border-color .15s, opacity .15s;
+    line-height: 1.2;
+}
+
+.qc-btn--primary {
+    background: #25b9d7;
+    border-color: #25b9d7;
+    color: #fff !important;
+}
+.qc-btn--primary:hover:not(:disabled) {
+    background: #1ea3be;
+    border-color: #1ea3be;
+}
+.qc-btn--primary:disabled {
+    background: #bbb;
+    border-color: #bbb;
+    cursor: not-allowed;
+    opacity: .7;
+}
+
+.qc-btn--outline {
+    background: transparent;
+    border-color: #25b9d7;
+    color: #25b9d7 !important;
+}
+.qc-btn--outline:hover { background: #f0fafd; }
+
+.qc-btn--full { width: 100%; }
+
+/* Spinner */
+.qc-btn--loading {
+    color: transparent !important;
+    pointer-events: none;
+    position: relative;
+}
+.qc-btn--loading::after {
+    content: '';
+    position: absolute;
+    width: 18px; height: 18px;
+    top: 50%; left: 50%;
+    margin: -9px 0 0 -9px;
+    border: 2px solid rgba(255,255,255,.4);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: qc-spin .7s linear infinite;
+}
+@keyframes qc-spin { to { transform: rotate(360deg); } }
+
+/* ============================================================
+   LINKS
+============================================================ */
+
+.qc-link {
+    display: inline-block;
+    font-size: 0.82rem;
+    color: #25b9d7;
+    text-decoration: none;
+    margin-top: 4px;
+}
+.qc-link:hover { text-decoration: underline; }
+
+.qc-link--back {
+    display: block;
+    text-align: center;
+    margin-top: 12px;
+    font-size: 0.84rem;
+    color: #aaa;
+}
+.qc-link--back:hover { color: #555; }
+
+.qc-link--small { font-size: 0.8rem; }
+
+/* ============================================================
+   AVISOS
+============================================================ */
+
+.qc-notice {
+    display: flex;
+    gap: 12px;
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+    font-size: 0.88rem;
+    line-height: 1.5;
+}
+
+.qc-notice--info {
+    background: #e8f6fb;
+    border: 1px solid #a8dcea;
+    color: #1a6a9a;
+}
+
+.qc-notice--error {
+    background: #fef2f2;
+    border: 1px solid #fcc;
+    border-left: 4px solid #e74c3c;
+    color: #333;
+}
+
+.qc-notice__icon {
+    width: 20px; height: 20px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    stroke: #e74c3c;
+}
+
+.qc-notice strong { display: block; font-weight: 700; color: #c0392b; margin-bottom: 3px; }
+.qc-notice p { margin: 0; }
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+
+@media (max-width: 600px) {
+    .qc-th--ref, .qc-td--ref,
+    .qc-th--price, .qc-td--price { display: none; }
+
+    .qc-td { padding: 10px 14px; }
+    .qc-th { padding: 10px 14px; }
+    .qc-product-img-wrap { width: 48px; height: 48px; }
+
+    .qc-address-grid { grid-template-columns: 1fr; }
+
+    .qc-card--totals { padding: 0 14px; }
+    #qc-address-block .qc-notice,
+    #qc-address-block .qc-btn,
+    #qc-address-block .qc-link { margin-left: 14px; margin-right: 14px; }
+    .qc-address-single { margin-left: 14px; margin-right: 14px; }
+    .qc-address-grid { padding-left: 14px; padding-right: 14px; }
+}

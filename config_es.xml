@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+    <name>quickcheckout</name>
+    <displayName><![CDATA[QuickCheckout]]></displayName>
+    <version><![CDATA[1.2.0]]></version>
+    <description><![CDATA[Checkout simplificado en una sola p&aacute;gina: muestra el resumen del carrito, gestiona la direcci&oacute;n y completa el pedido autom&aacute;ticamente.]]></description>
+    <author><![CDATA[QuickCheckout]]></author>
+    <tab><![CDATA[checkout]]></tab>
+    <is_configurable>1</is_configurable>
+    <need_instance>0</need_instance>
+</module>
