@@ -34,16 +34,17 @@ class QuickCheckoutProcessorderModuleFrontController extends ModuleFrontControll
         }
 
         // Dirección de envío
-        $addressId = (int) Tools::getValue('id_address_delivery');
+        $billingAddrId = 0;
+        $addressId     = (int) Tools::getValue('id_address_delivery');
+
         if ($addressId) {
             $address = new Address($addressId);
             if (!Validate::isLoadedObject($address) || (int) $address->id_customer !== (int) $customer->id) {
                 $this->jsonError($this->module->l('La dirección seleccionada no es válida.'));
             }
 
-            // Buscar dirección de facturación: primera con firstname "Facturacio" distinta a la de envío.
-            $allAddresses  = $customer->getAddresses($this->context->language->id);
-            $billingAddrId = 0;
+            // Buscar facturación: primera dirección con firstname "Facturacio" distinta a la de envío.
+            $allAddresses = $customer->getAddresses($this->context->language->id);
             foreach ($allAddresses as $addr) {
                 if (strtolower(trim($addr['firstname'])) === 'facturacio'
                     && (int) $addr['id_address'] !== $addressId) {
@@ -51,15 +52,18 @@ class QuickCheckoutProcessorderModuleFrontController extends ModuleFrontControll
                     break;
                 }
             }
-
-            $cart->id_address_delivery = $addressId;
-            $cart->id_address_invoice  = $billingAddrId ?: $addressId;
-            $cart->update();
+        } else {
+            $addressId = (int) $cart->id_address_delivery;
         }
 
-        if (!(int) $cart->id_address_delivery) {
+        if (!$addressId) {
             $this->jsonError($this->module->l('No tienes ninguna dirección de envío.'));
         }
+
+        $invoiceAddrId = $billingAddrId ?: $addressId;
+
+        // Poner la dirección en memoria para que resolveCarrierId la use
+        $cart->id_address_delivery = $addressId;
 
         // Transportista
         $carrierId = $this->module->getConfiguredCarrierId();
@@ -72,8 +76,18 @@ class QuickCheckoutProcessorderModuleFrontController extends ModuleFrontControll
             $this->jsonError($this->module->l('Lo sentimos, no disponemos de envío para tu dirección de envío.'));
         }
 
-        $cart->id_carrier = $resolvedCarrierId;
-        $cart->update();
+        // Escribir directo en BD (evita problemas de caché ORM/hooks) y limpiar caché PS
+        Db::getInstance()->execute(
+            'UPDATE `' . _DB_PREFIX_ . 'cart`
+             SET `id_address_delivery` = ' . (int) $addressId . ',
+                 `id_address_invoice`  = ' . (int) $invoiceAddrId . ',
+                 `id_carrier`          = ' . (int) $resolvedCarrierId . '
+             WHERE `id_cart` = ' . (int) $cart->id
+        );
+        $cart->id_address_delivery = $addressId;
+        $cart->id_address_invoice  = $invoiceAddrId;
+        $cart->id_carrier          = $resolvedCarrierId;
+        Cache::clean('objectmodel_Cart_' . (int) $cart->id . '_*');
 
         // Método de pago
         $paymentModuleName = $this->module->resolvePaymentModule((int) $customer->id);
@@ -109,6 +123,24 @@ class QuickCheckoutProcessorderModuleFrontController extends ModuleFrontControll
             $orderId = (int) Order::getOrderByCartId((int) $cart->id);
             if (!$orderId) {
                 $this->jsonError($this->module->l('No se pudo registrar el pedido. Por favor, inténtalo de nuevo.'));
+            }
+
+            // Red de seguridad: corregir direcciones en el pedido por si validateOrder
+            // las sobreescribió con datos de caché o lógica interna del módulo de pago.
+            $order = new Order($orderId);
+            if (Validate::isLoadedObject($order)) {
+                $fixOrder = false;
+                if ((int) $order->id_address_delivery !== $addressId) {
+                    $order->id_address_delivery = $addressId;
+                    $fixOrder = true;
+                }
+                if ((int) $order->id_address_invoice !== $invoiceAddrId) {
+                    $order->id_address_invoice = $invoiceAddrId;
+                    $fixOrder = true;
+                }
+                if ($fixOrder) {
+                    $order->update();
+                }
             }
 
             // Guardar nota del pedido
