@@ -289,20 +289,10 @@ class QuickCheckoutCheckoutModuleFrontController extends ModuleFrontController
 
         $selected = null;
         if (count($list) === 1) {
-            $selected  = $list[0]['id'];
-            $invoiceId = $billingAddrId ?: $selected;
-            $needsUpdate = false;
-            if ((int) $cart->id_address_delivery !== $selected) {
-                $cart->id_address_delivery = $selected;
-                $needsUpdate = true;
-            }
-            if ((int) $cart->id_address_invoice !== $invoiceId) {
-                $cart->id_address_invoice = $invoiceId;
-                $needsUpdate = true;
-            }
-            if ($needsUpdate) {
-                $cart->update();
-            }
+            $selected                  = $list[0]['id'];
+            $cart->id_address_delivery = $selected;
+            $cart->id_address_invoice  = $billingAddrId ?: $selected;
+            $cart->update();
         } elseif (count($list) > 1) {
             // Verificar que la dirección de envío del carrito está en la lista visible.
             // Si no (puede ser un ID obsoleto de un test anterior), usar la primera de la lista.
@@ -314,20 +304,10 @@ class QuickCheckoutCheckoutModuleFrontController extends ModuleFrontController
                     break;
                 }
             }
-            $selected    = ($cartDelivery && $inList) ? $cartDelivery : $list[0]['id'];
-            $invoiceId   = $billingAddrId ?: $selected;
-            $needsUpdate = false;
-            if ((int) $cart->id_address_delivery !== $selected) {
-                $cart->id_address_delivery = $selected;
-                $needsUpdate = true;
-            }
-            if ((int) $cart->id_address_invoice !== $invoiceId) {
-                $cart->id_address_invoice = $invoiceId;
-                $needsUpdate = true;
-            }
-            if ($needsUpdate) {
-                $cart->update();
-            }
+            $selected                  = ($cartDelivery && $inList) ? $cartDelivery : $list[0]['id'];
+            $cart->id_address_delivery = $selected;
+            $cart->id_address_invoice  = $billingAddrId ?: $selected;
+            $cart->update();
         }
 
         return ['list' => $list, 'selected' => $selected];

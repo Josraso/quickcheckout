@@ -41,44 +41,14 @@ class QuickCheckoutProcessorderModuleFrontController extends ModuleFrontControll
                 $this->jsonError($this->module->l('La dirección seleccionada no es válida.'));
             }
 
-            $allAddresses      = $customer->getAddresses($this->context->language->id);
-            $deliveryFirstname = '';
-            foreach ($allAddresses as $addr) {
-                if ((int) $addr['id_address'] === $addressId) {
-                    $deliveryFirstname = strtolower(trim($addr['firstname']));
-                    break;
-                }
-            }
-
-            // Salvaguarda: si el frontend envió una dirección "Facturacio" como envío
-            // pero el carrito ya tiene una dirección de envío no-Facturacio (puesta
-            // correctamente por checkout.php), usar la del carrito.
-            if ($deliveryFirstname === 'facturacio') {
-                $cartDelivery = (int) $cart->id_address_delivery;
-                if ($cartDelivery && $cartDelivery !== $addressId) {
-                    foreach ($allAddresses as $addr) {
-                        if ((int) $addr['id_address'] === $cartDelivery
-                            && strtolower(trim($addr['firstname'])) !== 'facturacio') {
-                            $addressId         = $cartDelivery;
-                            $deliveryFirstname = strtolower(trim($addr['firstname']));
-                            break;
-                        }
-                    }
-                }
-            }
-
-            // Buscar dirección de facturación:
-            // — Una dirección "Facturacio" distinta a la de envío elegida.
-            // — Si la de envío ES "Facturacio" (todas las direcciones son de facturación),
-            //   se usa la misma para las dos cosas.
+            // Buscar dirección de facturación: primera con firstname "Facturacio" distinta a la de envío.
+            $allAddresses  = $customer->getAddresses($this->context->language->id);
             $billingAddrId = 0;
-            if ($deliveryFirstname !== 'facturacio') {
-                foreach ($allAddresses as $addr) {
-                    if (strtolower(trim($addr['firstname'])) === 'facturacio'
-                        && (int) $addr['id_address'] !== $addressId) {
-                        $billingAddrId = (int) $addr['id_address'];
-                        break;
-                    }
+            foreach ($allAddresses as $addr) {
+                if (strtolower(trim($addr['firstname'])) === 'facturacio'
+                    && (int) $addr['id_address'] !== $addressId) {
+                    $billingAddrId = (int) $addr['id_address'];
+                    break;
                 }
             }
 
