@@ -41,11 +41,7 @@ class QuickCheckoutProcessorderModuleFrontController extends ModuleFrontControll
                 $this->jsonError($this->module->l('La dirección seleccionada no es válida.'));
             }
 
-            // Dirección de facturación:
-            // — Si hay una dirección con firstname="Facturacio" distinta a la de envío, se usa para factura.
-            // — Si la dirección seleccionada para envío ES "Facturacio" (caso todas-Facturacio),
-            //   se usa la misma para las dos cosas sin buscar otra.
-            $allAddresses     = $customer->getAddresses($this->context->language->id);
+            $allAddresses      = $customer->getAddresses($this->context->language->id);
             $deliveryFirstname = '';
             foreach ($allAddresses as $addr) {
                 if ((int) $addr['id_address'] === $addressId) {
@@ -54,6 +50,27 @@ class QuickCheckoutProcessorderModuleFrontController extends ModuleFrontControll
                 }
             }
 
+            // Salvaguarda: si el frontend envió una dirección "Facturacio" como envío
+            // pero el carrito ya tiene una dirección de envío no-Facturacio (puesta
+            // correctamente por checkout.php), usar la del carrito.
+            if ($deliveryFirstname === 'facturacio') {
+                $cartDelivery = (int) $cart->id_address_delivery;
+                if ($cartDelivery && $cartDelivery !== $addressId) {
+                    foreach ($allAddresses as $addr) {
+                        if ((int) $addr['id_address'] === $cartDelivery
+                            && strtolower(trim($addr['firstname'])) !== 'facturacio') {
+                            $addressId         = $cartDelivery;
+                            $deliveryFirstname = strtolower(trim($addr['firstname']));
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // Buscar dirección de facturación:
+            // — Una dirección "Facturacio" distinta a la de envío elegida.
+            // — Si la de envío ES "Facturacio" (todas las direcciones son de facturación),
+            //   se usa la misma para las dos cosas.
             $billingAddrId = 0;
             if ($deliveryFirstname !== 'facturacio') {
                 foreach ($allAddresses as $addr) {
