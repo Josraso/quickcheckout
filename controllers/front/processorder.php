@@ -41,15 +41,14 @@ class QuickCheckoutProcessorderModuleFrontController extends ModuleFrontControll
                 $this->jsonError($this->module->l('La dirección seleccionada no es válida.'));
             }
 
-            // Dirección de facturación: buscar firstname="Facturacio" entre las del cliente
+            // Dirección de facturación: firstname="Facturacio", distinta a la de envío
             $allAddresses  = $customer->getAddresses($this->context->language->id);
             $billingAddrId = 0;
-            if (count($allAddresses) > 1) {
-                foreach ($allAddresses as $addr) {
-                    if (strtolower(trim($addr['firstname'])) === 'facturacio') {
-                        $billingAddrId = (int) $addr['id_address'];
-                        break;
-                    }
+            foreach ($allAddresses as $addr) {
+                if (strtolower(trim($addr['firstname'])) === 'facturacio'
+                    && (int) $addr['id_address'] !== $addressId) {
+                    $billingAddrId = (int) $addr['id_address'];
+                    break;
                 }
             }
 

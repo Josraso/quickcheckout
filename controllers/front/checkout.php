@@ -60,6 +60,7 @@ class QuickCheckoutCheckoutModuleFrontController extends ModuleFrontController
         $allAddresses   = $customer->getAddresses($this->context->language->id);
         $totalCount     = count($allAddresses);
         $billingWarning = false;
+        $billingAddrId  = 0;
 
         if ($totalCount > 1) {
             // Con varias direcciones: filtrar por firstname
@@ -78,15 +79,21 @@ class QuickCheckoutCheckoutModuleFrontController extends ModuleFrontController
                 }));
             }
 
+            // Último recurso: si todas son "Facturacio", mostrar todas (no filtrar)
+            if (empty($shippingAddrs)) {
+                $shippingAddrs = $allAddresses;
+            }
+
             $addresses      = $shippingAddrs;
             $billingWarning = empty($billingAddrs);
+            $billingAddrId  = !empty($billingAddrs) ? (int) $billingAddrs[0]['id_address'] : 0;
         } else {
             // 0 o 1 dirección: comportamiento sin filtrado
             $addresses = $allAddresses;
         }
 
         $addressCount = count($addresses);
-        $addressData  = $this->buildAddressData($addresses, $cart);
+        $addressData  = $this->buildAddressData($addresses, $cart, $billingAddrId);
 
         // ---- Transportista ----
         $carrierId    = $this->module->getConfiguredCarrierId();
@@ -267,7 +274,7 @@ class QuickCheckoutCheckoutModuleFrontController extends ModuleFrontController
         return '';
     }
 
-    private function buildAddressData(array $addresses, Cart $cart): array
+    private function buildAddressData(array $addresses, Cart $cart, int $billingAddrId = 0): array
     {
         $list = [];
         foreach ($addresses as $addr) {
@@ -282,14 +289,26 @@ class QuickCheckoutCheckoutModuleFrontController extends ModuleFrontController
 
         $selected = null;
         if (count($list) === 1) {
-            $selected = $list[0]['id'];
+            $selected  = $list[0]['id'];
+            $invoiceId = $billingAddrId ?: $selected;
+            $needsUpdate = false;
             if ((int) $cart->id_address_delivery !== $selected) {
                 $cart->id_address_delivery = $selected;
-                $cart->id_address_invoice  = $selected;
+                $needsUpdate = true;
+            }
+            if ((int) $cart->id_address_invoice !== $invoiceId) {
+                $cart->id_address_invoice = $invoiceId;
+                $needsUpdate = true;
+            }
+            if ($needsUpdate) {
                 $cart->update();
             }
         } elseif (count($list) > 1) {
             $selected = (int) $cart->id_address_delivery ?: $list[0]['id'];
+            if ($billingAddrId && (int) $cart->id_address_invoice !== $billingAddrId) {
+                $cart->id_address_invoice = $billingAddrId;
+                $cart->update();
+            }
         }
 
         return ['list' => $list, 'selected' => $selected];
