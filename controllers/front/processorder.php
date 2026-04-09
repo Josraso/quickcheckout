@@ -101,16 +101,22 @@ class QuickCheckoutProcessorderModuleFrontController extends ModuleFrontControll
 
             // Guardar nota del pedido (visible en pedido y servicio al cliente)
             if ($message) {
-                Db::getInstance()->insert('message', [
-                    'id_cart'     => (int) $cart->id,
-                    'id_customer' => (int) $customer->id,
-                    'id_employee' => 0,
-                    'id_order'    => (int) $orderId,
-                    'message'     => pSQL($message),
-                    'private'     => 0,
-                    'new_message' => 1,
-                    'date_add'    => date('Y-m-d H:i:s'),
-                ]);
+                try {
+                    Db::getInstance()->execute('
+                        INSERT INTO `' . _DB_PREFIX_ . 'message`
+                        (`id_cart`, `id_customer`, `id_employee`, `id_order`, `message`, `private`, `new_message`, `date_add`)
+                        VALUES (
+                            ' . (int) $cart->id . ',
+                            ' . (int) $customer->id . ',
+                            0,
+                            ' . (int) $orderId . ',
+                            \'' . pSQL($message) . '\',
+                            0, 1, NOW()
+                        )
+                    ');
+                } catch (Exception $e) {
+                    PrestaShopLogger::addLog('QuickCheckout: error al guardar mensaje del pedido: ' . $e->getMessage(), 2);
+                }
             }
 
             $confirmUrl = $this->context->link->getPageLink(
