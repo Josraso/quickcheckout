@@ -304,12 +304,20 @@ class QuickCheckoutCheckoutModuleFrontController extends ModuleFrontController
                 $cart->update();
             }
         } elseif (count($list) > 1) {
-            $selected    = (int) $cart->id_address_delivery ?: $list[0]['id'];
+            // Verificar que la dirección de envío del carrito está en la lista visible.
+            // Si no (puede ser un ID obsoleto de un test anterior), usar la primera de la lista.
+            $cartDelivery = (int) $cart->id_address_delivery;
+            $inList       = false;
+            foreach ($list as $item) {
+                if ($item['id'] === $cartDelivery) {
+                    $inList = true;
+                    break;
+                }
+            }
+            $selected    = ($cartDelivery && $inList) ? $cartDelivery : $list[0]['id'];
             $invoiceId   = $billingAddrId ?: $selected;
             $needsUpdate = false;
-            // Si el carrito no tiene dirección de entrega (carrito nuevo), establecer la preseleccionada
-            // para que la verificación del transportista funcione correctamente.
-            if (!(int) $cart->id_address_delivery) {
+            if ((int) $cart->id_address_delivery !== $selected) {
                 $cart->id_address_delivery = $selected;
                 $needsUpdate = true;
             }
