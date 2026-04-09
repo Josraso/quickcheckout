@@ -117,11 +117,8 @@ class QuickCheckoutProcessorderModuleFrontController extends ModuleFrontControll
                 // 2. ps_customer_thread + ps_customer_message
                 //    — nueva vista de pedidos (PS 1.7.7+) y servicio al cliente
                 try {
-                    $contactRow = Db::getInstance()->getRow(
-                        'SELECT `id_contact` FROM `' . _DB_PREFIX_ . 'contact`
-                         WHERE `deleted` = 0 ORDER BY `id_contact` ASC'
-                    );
-                    $contactId = $contactRow ? (int) $contactRow['id_contact'] : 1;
+                    $contacts  = Contact::getContacts((int) $this->context->language->id);
+                    $contactId = !empty($contacts) ? (int) $contacts[0]['id_contact'] : 1;
 
                     Db::getInstance()->execute('
                         INSERT INTO `' . _DB_PREFIX_ . 'customer_thread`
