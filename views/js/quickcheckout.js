@@ -58,6 +58,7 @@ function qcSelectAddress(el, addressId) {
                     ajax:                1,
                     token:               token,
                     id_address_delivery: addressId,
+                    message:             ($('#qc-order-message').val() || '').trim(),
                 },
                 success: function (response) {
                     if (response && response.success) {

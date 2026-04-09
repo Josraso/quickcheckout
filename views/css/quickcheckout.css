@@ -426,6 +426,32 @@
 .qc-notice p { margin: 0; }
 
 /* ============================================================
+   NOTAS DEL PEDIDO
+============================================================ */
+
+.qc-card-body { padding: 18px 22px; }
+
+.qc-textarea {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    color: #333;
+    resize: vertical;
+    min-height: 80px;
+    font-family: inherit;
+    transition: border-color .2s;
+}
+.qc-textarea:focus {
+    outline: none;
+    border-color: #25b9d7;
+    box-shadow: 0 0 0 3px rgba(37,185,215,.1);
+}
+.qc-textarea::placeholder { color: #bbb; }
+
+/* ============================================================
    RESPONSIVE
 ============================================================ */
 

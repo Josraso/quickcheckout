@@ -79,14 +79,15 @@ class QuickCheckoutProcessorderModuleFrontController extends ModuleFrontControll
 
         // Crear el pedido
         try {
-            $total = (float) $cart->getOrderTotal(true, Cart::BOTH);
+            $total   = (float) $cart->getOrderTotal(true, Cart::BOTH);
+            $message = strip_tags(trim(Tools::getValue('message', ''))) ?: null;
 
             $paymentModule->validateOrder(
                 (int) $cart->id,
                 (int) Configuration::get('PS_OS_PAYMENT'),
                 $total,
                 $paymentModule->displayName,
-                null,
+                $message,
                 [],
                 (int) $this->context->currency->id,
                 false,
