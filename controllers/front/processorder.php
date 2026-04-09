@@ -87,7 +87,7 @@ class QuickCheckoutProcessorderModuleFrontController extends ModuleFrontControll
                 (int) Configuration::get('PS_OS_PAYMENT'),
                 $total,
                 $paymentModule->displayName,
-                $message,
+                null,
                 [],
                 (int) $this->context->currency->id,
                 false,
@@ -97,6 +97,17 @@ class QuickCheckoutProcessorderModuleFrontController extends ModuleFrontControll
             $orderId = (int) Order::getOrderByCartId((int) $cart->id);
             if (!$orderId) {
                 $this->jsonError($this->module->l('No se pudo registrar el pedido. Por favor, inténtalo de nuevo.'));
+            }
+
+            // Guardar nota del pedido como mensaje público (visible en pedido y servicio al cliente)
+            if ($message && Validate::isCleanHtml($message)) {
+                $msg                = new Message();
+                $msg->message       = $message;
+                $msg->id_cart       = (int) $cart->id;
+                $msg->id_customer   = (int) $customer->id;
+                $msg->id_order      = $orderId;
+                $msg->private       = false;
+                $msg->add();
             }
 
             $confirmUrl = $this->context->link->getPageLink(
