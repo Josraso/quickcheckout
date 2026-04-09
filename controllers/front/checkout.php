@@ -304,10 +304,20 @@ class QuickCheckoutCheckoutModuleFrontController extends ModuleFrontController
                 $cart->update();
             }
         } elseif (count($list) > 1) {
-            $selected  = (int) $cart->id_address_delivery ?: $list[0]['id'];
-            $invoiceId = $billingAddrId ?: $selected;
+            $selected    = (int) $cart->id_address_delivery ?: $list[0]['id'];
+            $invoiceId   = $billingAddrId ?: $selected;
+            $needsUpdate = false;
+            // Si el carrito no tiene dirección de entrega (carrito nuevo), establecer la preseleccionada
+            // para que la verificación del transportista funcione correctamente.
+            if (!(int) $cart->id_address_delivery) {
+                $cart->id_address_delivery = $selected;
+                $needsUpdate = true;
+            }
             if ((int) $cart->id_address_invoice !== $invoiceId) {
                 $cart->id_address_invoice = $invoiceId;
+                $needsUpdate = true;
+            }
+            if ($needsUpdate) {
                 $cart->update();
             }
         }
