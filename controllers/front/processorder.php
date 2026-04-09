@@ -33,6 +33,25 @@ class QuickCheckoutProcessorderModuleFrontController extends ModuleFrontControll
             $this->jsonError($this->module->l('Tu carrito está vacío.'));
         }
 
+        // Validar configuración de direcciones (max 1 de cada tipo)
+        $allAddressesCheck = $customer->getAddresses($this->context->language->id);
+        $facturacioCount   = 0;
+        $entregaCount      = 0;
+        foreach ($allAddressesCheck as $a) {
+            $fn = strtolower(trim($a['firstname']));
+            if ($fn === 'facturacio') {
+                $facturacioCount++;
+            } elseif ($fn === 'entrega') {
+                $entregaCount++;
+            }
+        }
+        if ($facturacioCount > 1) {
+            $this->jsonError($this->module->l('Configuración incorrecta: hay más de una dirección de facturación (Facturacio). Contacta con el administrador.'));
+        }
+        if ($entregaCount > 1) {
+            $this->jsonError($this->module->l('Configuración incorrecta: hay más de una dirección de envío (Entrega). Contacta con el administrador.'));
+        }
+
         // Dirección de envío
         $billingAddrId = 0;
         $addressId     = (int) Tools::getValue('id_address_delivery');
@@ -87,6 +106,7 @@ class QuickCheckoutProcessorderModuleFrontController extends ModuleFrontControll
         $cart->id_address_delivery = $addressId;
         $cart->id_address_invoice  = $invoiceAddrId;
         $cart->id_carrier          = $resolvedCarrierId;
+        $cart->update(); // dispara hooks necesarios (correos, descuentos, etc.)
         Cache::clean('objectmodel_Cart_' . (int) $cart->id . '_*');
 
         // Método de pago

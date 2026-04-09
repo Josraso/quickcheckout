@@ -59,8 +59,9 @@ class QuickCheckoutCheckoutModuleFrontController extends ModuleFrontController
         // ---- Direcciones PRIMERO (pueden actualizar el carrito) ----
         $allAddresses   = $customer->getAddresses($this->context->language->id);
         $totalCount     = count($allAddresses);
-        $billingWarning = false;
-        $billingAddrId  = 0;
+        $billingWarning     = false;
+        $billingAddrId      = 0;
+        $billingConfigError = '';
 
         if ($totalCount > 1) {
             // Con varias direcciones: filtrar por firstname
@@ -72,21 +73,30 @@ class QuickCheckoutCheckoutModuleFrontController extends ModuleFrontController
                 return strtolower(trim($a['firstname'])) === 'entrega';
             }));
 
-            // Si no hay ninguna "Entrega", mostrar todas las que no son "Facturacio"
-            if (empty($shippingAddrs)) {
-                $shippingAddrs = array_values(array_filter($allAddresses, function ($a) {
-                    return strtolower(trim($a['firstname'])) !== 'facturacio';
-                }));
+            if (count($billingAddrs) > 1) {
+                // Más de una "Facturacio": bloquear con mensaje
+                $billingConfigError = $this->module->l('Configuración incorrecta: hay más de una dirección de facturación (Facturacio). Solo puede existir una. Contacta con el administrador para corregirlo.');
+                $addresses          = $allAddresses;
+            } elseif (count($shippingAddrs) > 1) {
+                // Más de una "Entrega": bloquear con mensaje
+                $billingConfigError = $this->module->l('Configuración incorrecta: hay más de una dirección de envío (Entrega). Solo puede existir una. Contacta con el administrador para corregirlo.');
+                $addresses          = $allAddresses;
+            } else {
+                // Flujo normal: máximo 1 de cada tipo
+                // Si no hay ninguna "Entrega", mostrar todas las que no son "Facturacio"
+                if (empty($shippingAddrs)) {
+                    $shippingAddrs = array_values(array_filter($allAddresses, function ($a) {
+                        return strtolower(trim($a['firstname'])) !== 'facturacio';
+                    }));
+                }
+                // Último recurso: si todas son "Facturacio", mostrar todas
+                if (empty($shippingAddrs)) {
+                    $shippingAddrs = $allAddresses;
+                }
+                $addresses      = $shippingAddrs;
+                $billingWarning = empty($billingAddrs);
+                $billingAddrId  = !empty($billingAddrs) ? (int) $billingAddrs[0]['id_address'] : 0;
             }
-
-            // Último recurso: si todas son "Facturacio", mostrar todas (no filtrar)
-            if (empty($shippingAddrs)) {
-                $shippingAddrs = $allAddresses;
-            }
-
-            $addresses      = $shippingAddrs;
-            $billingWarning = empty($billingAddrs);
-            $billingAddrId  = !empty($billingAddrs) ? (int) $billingAddrs[0]['id_address'] : 0;
         } else {
             // 0 o 1 dirección: comportamiento sin filtrado
             $addresses = $allAddresses;
@@ -144,9 +154,11 @@ class QuickCheckoutCheckoutModuleFrontController extends ModuleFrontController
         $total    = $subtotal + $shippingCost;
 
         // ---- ¿Se puede pedir? ----
-        $canOrder   = $carrierOk && $paymentOk && $addressCount > 0;
+        $canOrder   = $carrierOk && $paymentOk && $addressCount > 0 && !$billingConfigError;
         $blockError = '';
-        if (!$canOrder && $addressCount > 0) {
+        if ($billingConfigError) {
+            $blockError = $billingConfigError;
+        } elseif (!$canOrder && $addressCount > 0) {
             $blockError = $carrierError ?: $paymentError;
         }
 
