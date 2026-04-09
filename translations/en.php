@@ -53,3 +53,7 @@ $_MODULE['<{quickcheckout}prestashop>quickcheckout_47'] = 'An error occurred. Pl
 $_MODULE['<{quickcheckout}prestashop>quickcheckout_48'] = 'The configured carrier is not active. Please contact the administrator.';
 $_MODULE['<{quickcheckout}prestashop>quickcheckout_49'] = 'Sorry, we do not have shipping available for your address. Please contact us.';
 $_MODULE['<{quickcheckout}prestashop>quickcheckout_50'] = 'No payment method configured. Please contact the administrator.';
+$_MODULE['<{quickcheckout}prestashop>quickcheckout_51'] = 'To manage your delivery addresses, please contact us.';
+$_MODULE['<{quickcheckout}prestashop>quickcheckout_52'] = 'You have no billing address configured. The selected delivery address will be used for both shipping and billing.';
+$_MODULE['<{quickcheckout}prestashop>quickcheckout_53'] = 'Order notes';
+$_MODULE['<{quickcheckout}prestashop>quickcheckout_54'] = 'Special instructions, comments or notes for your order (optional).';

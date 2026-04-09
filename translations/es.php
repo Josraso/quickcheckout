@@ -53,3 +53,7 @@ $_MODULE['<{quickcheckout}prestashop>quickcheckout_47'] = 'Ha ocurrido un error.
 $_MODULE['<{quickcheckout}prestashop>quickcheckout_48'] = 'El transportista configurado no está activo. Contacta con el administrador.';
 $_MODULE['<{quickcheckout}prestashop>quickcheckout_49'] = 'Lo sentimos, no disponemos de servicio de transporte para tu dirección de envío. Por favor, contacta con nosotros.';
 $_MODULE['<{quickcheckout}prestashop>quickcheckout_50'] = 'No hay ningún método de pago configurado. Contacta con el administrador.';
+$_MODULE['<{quickcheckout}prestashop>quickcheckout_51'] = 'Para gestionar tus direcciones de envío, contacta con nosotros.';
+$_MODULE['<{quickcheckout}prestashop>quickcheckout_52'] = 'No tienes dirección de facturación configurada. Se usará la misma dirección seleccionada para el envío y la facturación.';
+$_MODULE['<{quickcheckout}prestashop>quickcheckout_53'] = 'Notas del pedido';
+$_MODULE['<{quickcheckout}prestashop>quickcheckout_54'] = 'Instrucciones especiales, comentarios o notas para tu pedido (opcional).';

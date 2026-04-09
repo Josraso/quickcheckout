@@ -57,7 +57,34 @@ class QuickCheckoutCheckoutModuleFrontController extends ModuleFrontController
         }
 
         // ---- Direcciones PRIMERO (pueden actualizar el carrito) ----
-        $addresses    = $customer->getAddresses($this->context->language->id);
+        $allAddresses   = $customer->getAddresses($this->context->language->id);
+        $totalCount     = count($allAddresses);
+        $billingWarning = false;
+
+        if ($totalCount > 1) {
+            // Con varias direcciones: filtrar por firstname
+            // "Facturacio" → facturación (silenciosa), "Entrega" → envío (mostrar)
+            $billingAddrs  = array_values(array_filter($allAddresses, function ($a) {
+                return strtolower(trim($a['firstname'])) === 'facturacio';
+            }));
+            $shippingAddrs = array_values(array_filter($allAddresses, function ($a) {
+                return strtolower(trim($a['firstname'])) === 'entrega';
+            }));
+
+            // Si no hay ninguna "Entrega", mostrar todas las que no son "Facturacio"
+            if (empty($shippingAddrs)) {
+                $shippingAddrs = array_values(array_filter($allAddresses, function ($a) {
+                    return strtolower(trim($a['firstname'])) !== 'facturacio';
+                }));
+            }
+
+            $addresses      = $shippingAddrs;
+            $billingWarning = empty($billingAddrs);
+        } else {
+            // 0 o 1 dirección: comportamiento sin filtrado
+            $addresses = $allAddresses;
+        }
+
         $addressCount = count($addresses);
         $addressData  = $this->buildAddressData($addresses, $cart);
 
@@ -125,9 +152,7 @@ class QuickCheckoutCheckoutModuleFrontController extends ModuleFrontController
             'qc_address_count'   => $addressCount,
             'qc_addresses'       => $addressData['list'],
             'qc_selected_addr'   => $addressData['selected'],
-            'qc_add_address_url' => $this->context->link->getPageLink('address', null, null, [
-                'back' => urlencode($this->context->link->getModuleLink('quickcheckout', 'checkout')),
-            ]),
+            'qc_billing_warning' => $billingWarning,
             'qc_can_order'       => $canOrder,
             'qc_block_error'     => $blockError,
             'qc_cart_url'        => $this->context->link->getPageLink('cart', null, null, ['action' => 'show']),

@@ -95,11 +95,8 @@
     {if $qc_address_count == 0}
 
       <div class="qc-notice qc-notice--info">
-        <p>{l s='No tienes ninguna dirección de envío guardada.' mod='quickcheckout'}</p>
+        <p>{l s='Para gestionar tus direcciones de envío, contacta con nosotros.' mod='quickcheckout'}</p>
       </div>
-      <a href="{$qc_add_address_url|escape:'htmlall':'UTF-8'}" class="qc-btn qc-btn--outline">
-        + {l s='Añadir dirección de envío' mod='quickcheckout'}
-      </a>
 
     {elseif $qc_address_count == 1}
 
@@ -109,9 +106,6 @@
         <div class="qc-address-single__line">{$qc_addresses[0].line1|escape:'htmlall':'UTF-8'}</div>
         <div class="qc-address-single__line">{$qc_addresses[0].line2|escape:'htmlall':'UTF-8'}</div>
       </div>
-      <a href="{$qc_add_address_url|escape:'htmlall':'UTF-8'}" class="qc-link qc-link--small">
-        {l s='Usar otra dirección' mod='quickcheckout'}
-      </a>
 
     {else}
 
@@ -133,9 +127,12 @@
         {/foreach}
       </div>
       <input type="hidden" id="qc-address-id" value="{$qc_selected_addr|intval}">
-      <a href="{$qc_add_address_url|escape:'htmlall':'UTF-8'}" class="qc-link qc-link--small">
-        + {l s='Añadir nueva dirección' mod='quickcheckout'}
-      </a>
+
+      {if $qc_billing_warning}
+        <div class="qc-notice qc-notice--warning" style="margin: 14px 22px 0;">
+          <p>{l s='No tienes dirección de facturación configurada. Se usará la misma dirección seleccionada para el envío y la facturación.' mod='quickcheckout'}</p>
+        </div>
+      {/if}
 
     {/if}
   </div>

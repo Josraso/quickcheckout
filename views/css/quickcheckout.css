@@ -408,6 +408,13 @@
     color: #1a6a9a;
 }
 
+.qc-notice--warning {
+    background: #fffbea;
+    border: 1px solid #f5d76e;
+    border-left: 4px solid #f39c12;
+    color: #7d5a00;
+}
+
 .qc-notice--error {
     background: #fef2f2;
     border: 1px solid #fcc;
