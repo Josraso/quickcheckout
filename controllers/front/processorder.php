@@ -99,15 +99,18 @@ class QuickCheckoutProcessorderModuleFrontController extends ModuleFrontControll
                 $this->jsonError($this->module->l('No se pudo registrar el pedido. Por favor, inténtalo de nuevo.'));
             }
 
-            // Guardar nota del pedido como mensaje público (visible en pedido y servicio al cliente)
-            if ($message && Validate::isCleanHtml($message)) {
-                $msg                = new Message();
-                $msg->message       = $message;
-                $msg->id_cart       = (int) $cart->id;
-                $msg->id_customer   = (int) $customer->id;
-                $msg->id_order      = $orderId;
-                $msg->private       = false;
-                $msg->add();
+            // Guardar nota del pedido (visible en pedido y servicio al cliente)
+            if ($message) {
+                Db::getInstance()->insert('message', [
+                    'id_cart'     => (int) $cart->id,
+                    'id_customer' => (int) $customer->id,
+                    'id_employee' => 0,
+                    'id_order'    => (int) $orderId,
+                    'message'     => pSQL($message),
+                    'private'     => 0,
+                    'new_message' => 1,
+                    'date_add'    => date('Y-m-d H:i:s'),
+                ]);
             }
 
             $confirmUrl = $this->context->link->getPageLink(
