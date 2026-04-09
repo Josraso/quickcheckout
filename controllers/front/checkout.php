@@ -304,9 +304,10 @@ class QuickCheckoutCheckoutModuleFrontController extends ModuleFrontController
                 $cart->update();
             }
         } elseif (count($list) > 1) {
-            $selected = (int) $cart->id_address_delivery ?: $list[0]['id'];
-            if ($billingAddrId && (int) $cart->id_address_invoice !== $billingAddrId) {
-                $cart->id_address_invoice = $billingAddrId;
+            $selected  = (int) $cart->id_address_delivery ?: $list[0]['id'];
+            $invoiceId = $billingAddrId ?: $selected;
+            if ((int) $cart->id_address_invoice !== $invoiceId) {
+                $cart->id_address_invoice = $invoiceId;
                 $cart->update();
             }
         }
