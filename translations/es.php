@@ -58,4 +58,5 @@ $_MODULE['<{quickcheckout}prestashop>quickcheckout_52'] = 'No tienes dirección 
 $_MODULE['<{quickcheckout}prestashop>quickcheckout_53'] = 'Notas del pedido';
 $_MODULE['<{quickcheckout}prestashop>quickcheckout_54'] = 'Instrucciones especiales, comentarios o notas para tu pedido (opcional).';
 $_MODULE['<{quickcheckout}prestashop>quickcheckout_55'] = 'Configuración incorrecta: hay más de una dirección de facturación (Facturacio). Solo puede existir una. Contacta con el administrador para corregirlo.';
-$_MODULE['<{quickcheckout}prestashop>quickcheckout_56'] = 'Configuración incorrecta: hay más de una dirección de envío (Entrega). Solo puede existir una. Contacta con el administrador para corregirlo.';
+$_MODULE['<{quickcheckout}prestashop>quickcheckout_56'] = 'Configuración incorrecta: no hay ninguna dirección de facturación (Facturacio). Debes tener exactamente una. Contacta con el administrador para corregirlo.';
+$_MODULE['<{quickcheckout}prestashop>quickcheckout_57'] = 'Configuración incorrecta: no hay ninguna dirección de envío (Entrega). Debes tener al menos una. Contacta con el administrador para corregirlo.';

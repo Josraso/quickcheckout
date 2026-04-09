@@ -33,23 +33,28 @@ class QuickCheckoutProcessorderModuleFrontController extends ModuleFrontControll
             $this->jsonError($this->module->l('Tu carrito está vacío.'));
         }
 
-        // Validar configuración de direcciones (max 1 de cada tipo)
+        // Validar configuración de direcciones cuando hay 2+ (debe haber exactamente 1 Facturacio y 1+ Entrega)
         $allAddressesCheck = $customer->getAddresses($this->context->language->id);
-        $facturacioCount   = 0;
-        $entregaCount      = 0;
-        foreach ($allAddressesCheck as $a) {
-            $fn = strtolower(trim($a['firstname']));
-            if ($fn === 'facturacio') {
-                $facturacioCount++;
-            } elseif ($fn === 'entrega') {
-                $entregaCount++;
+        if (count($allAddressesCheck) > 1) {
+            $facturacioCount = 0;
+            $entregaCount    = 0;
+            foreach ($allAddressesCheck as $a) {
+                $fn = strtolower(trim($a['firstname']));
+                if ($fn === 'facturacio') {
+                    $facturacioCount++;
+                } elseif ($fn === 'entrega') {
+                    $entregaCount++;
+                }
             }
-        }
-        if ($facturacioCount > 1) {
-            $this->jsonError($this->module->l('Configuración incorrecta: hay más de una dirección de facturación (Facturacio). Contacta con el administrador.'));
-        }
-        if ($entregaCount > 1) {
-            $this->jsonError($this->module->l('Configuración incorrecta: hay más de una dirección de envío (Entrega). Contacta con el administrador.'));
+            if ($facturacioCount > 1) {
+                $this->jsonError($this->module->l('Configuración incorrecta: hay más de una dirección de facturación (Facturacio). Contacta con el administrador.'));
+            }
+            if ($facturacioCount === 0) {
+                $this->jsonError($this->module->l('Configuración incorrecta: no hay ninguna dirección de facturación (Facturacio). Contacta con el administrador.'));
+            }
+            if ($entregaCount === 0) {
+                $this->jsonError($this->module->l('Configuración incorrecta: no hay ninguna dirección de envío (Entrega). Contacta con el administrador.'));
+            }
         }
 
         // Dirección de envío

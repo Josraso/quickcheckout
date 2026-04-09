@@ -58,4 +58,5 @@ $_MODULE['<{quickcheckout}prestashop>quickcheckout_52'] = 'You have no billing a
 $_MODULE['<{quickcheckout}prestashop>quickcheckout_53'] = 'Order notes';
 $_MODULE['<{quickcheckout}prestashop>quickcheckout_54'] = 'Special instructions, comments or notes for your order (optional).';
 $_MODULE['<{quickcheckout}prestashop>quickcheckout_55'] = 'Incorrect configuration: there is more than one billing address (Facturacio). Only one is allowed. Please contact the administrator to fix it.';
-$_MODULE['<{quickcheckout}prestashop>quickcheckout_56'] = 'Incorrect configuration: there is more than one delivery address (Entrega). Only one is allowed. Please contact the administrator to fix it.';
+$_MODULE['<{quickcheckout}prestashop>quickcheckout_56'] = 'Incorrect configuration: there is no billing address (Facturacio). You must have exactly one. Please contact the administrator to fix it.';
+$_MODULE['<{quickcheckout}prestashop>quickcheckout_57'] = 'Incorrect configuration: there is no delivery address (Entrega). You must have at least one. Please contact the administrator to fix it.';

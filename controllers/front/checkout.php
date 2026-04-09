@@ -64,8 +64,6 @@ class QuickCheckoutCheckoutModuleFrontController extends ModuleFrontController
         $billingConfigError = '';
 
         if ($totalCount > 1) {
-            // Con varias direcciones: filtrar por firstname
-            // "Facturacio" → facturación (silenciosa), "Entrega" → envío (mostrar)
             $billingAddrs  = array_values(array_filter($allAddresses, function ($a) {
                 return strtolower(trim($a['firstname'])) === 'facturacio';
             }));
@@ -74,31 +72,21 @@ class QuickCheckoutCheckoutModuleFrontController extends ModuleFrontController
             }));
 
             if (count($billingAddrs) > 1) {
-                // Más de una "Facturacio": bloquear con mensaje
                 $billingConfigError = $this->module->l('Configuración incorrecta: hay más de una dirección de facturación (Facturacio). Solo puede existir una. Contacta con el administrador para corregirlo.');
-                $addresses          = $allAddresses;
-            } elseif (count($shippingAddrs) > 1) {
-                // Más de una "Entrega": bloquear con mensaje
-                $billingConfigError = $this->module->l('Configuración incorrecta: hay más de una dirección de envío (Entrega). Solo puede existir una. Contacta con el administrador para corregirlo.');
-                $addresses          = $allAddresses;
+                $addresses          = $shippingAddrs; // mostrar solo Entrega, nunca Facturacio
+            } elseif (count($billingAddrs) === 0) {
+                $billingConfigError = $this->module->l('Configuración incorrecta: no hay ninguna dirección de facturación (Facturacio). Debes tener exactamente una. Contacta con el administrador para corregirlo.');
+                $addresses          = $shippingAddrs;
+            } elseif (count($shippingAddrs) === 0) {
+                $billingConfigError = $this->module->l('Configuración incorrecta: no hay ninguna dirección de envío (Entrega). Debes tener al menos una. Contacta con el administrador para corregirlo.');
+                $addresses          = [];
             } else {
-                // Flujo normal: máximo 1 de cada tipo
-                // Si no hay ninguna "Entrega", mostrar todas las que no son "Facturacio"
-                if (empty($shippingAddrs)) {
-                    $shippingAddrs = array_values(array_filter($allAddresses, function ($a) {
-                        return strtolower(trim($a['firstname'])) !== 'facturacio';
-                    }));
-                }
-                // Último recurso: si todas son "Facturacio", mostrar todas
-                if (empty($shippingAddrs)) {
-                    $shippingAddrs = $allAddresses;
-                }
-                $addresses      = $shippingAddrs;
-                $billingWarning = empty($billingAddrs);
-                $billingAddrId  = !empty($billingAddrs) ? (int) $billingAddrs[0]['id_address'] : 0;
+                // VÁLIDO: exactamente 1 Facturacio + 1 o más Entrega
+                $addresses     = $shippingAddrs;
+                $billingAddrId = (int) $billingAddrs[0]['id_address'];
             }
         } else {
-            // 0 o 1 dirección: comportamiento sin filtrado
+            // 0 o 1 dirección única: sin filtrado
             $addresses = $allAddresses;
         }
 
