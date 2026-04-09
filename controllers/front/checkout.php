@@ -73,10 +73,10 @@ class QuickCheckoutCheckoutModuleFrontController extends ModuleFrontController
 
             if (count($billingAddrs) > 1) {
                 $billingConfigError = $this->module->l('Configuración incorrecta: hay más de una dirección de facturación (Facturacio). Solo puede existir una. Contacta con el administrador para corregirlo.');
-                $addresses          = $shippingAddrs; // mostrar solo Entrega, nunca Facturacio
+                $addresses          = [];
             } elseif (count($billingAddrs) === 0) {
                 $billingConfigError = $this->module->l('Configuración incorrecta: no hay ninguna dirección de facturación (Facturacio). Debes tener exactamente una. Contacta con el administrador para corregirlo.');
-                $addresses          = $shippingAddrs;
+                $addresses          = [];
             } elseif (count($shippingAddrs) === 0) {
                 $billingConfigError = $this->module->l('Configuración incorrecta: no hay ninguna dirección de envío (Entrega). Debes tener al menos una. Contacta con el administrador para corregirlo.');
                 $addresses          = [];
