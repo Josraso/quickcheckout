@@ -99,19 +99,30 @@ class QuickCheckoutProcessorderModuleFrontController extends ModuleFrontControll
                 $this->jsonError($this->module->l('No se pudo registrar el pedido. Por favor, inténtalo de nuevo.'));
             }
 
-            // Guardar nota del pedido (visible en pedido y servicio al cliente)
+            // Guardar nota del pedido
             if ($message) {
+
+                // 1. ps_message — detalle del pedido (vista clásica backoffice)
                 try {
-                    // 1. ps_message — detalle del pedido (compatibilidad todas las versiones)
                     Db::getInstance()->execute('
                         INSERT INTO `' . _DB_PREFIX_ . 'message`
-                        (`id_cart`, `id_customer`, `id_employee`, `id_order`, `message`, `private`, `new_message`, `date_add`)
+                        (`id_cart`, `id_customer`, `id_employee`, `id_order`, `message`, `private`, `date_add`)
                         VALUES (' . (int) $cart->id . ', ' . (int) $customer->id . ', 0, ' . (int) $orderId . ',
-                                \'' . pSQL($message) . '\', 0, 1, NOW())
+                                \'' . pSQL($message) . '\', 0, NOW())
                     ');
+                } catch (Exception $e) {
+                    PrestaShopLogger::addLog('QuickCheckout ps_message error: ' . $e->getMessage(), 2);
+                }
 
-                    // 2. ps_customer_thread + ps_customer_message — servicio al cliente
-                    //    y detalle del pedido en PS 1.7.7+ (nueva vista de pedidos)
+                // 2. ps_customer_thread + ps_customer_message
+                //    — nueva vista de pedidos (PS 1.7.7+) y servicio al cliente
+                try {
+                    $contactRow = Db::getInstance()->getRow(
+                        'SELECT `id_contact` FROM `' . _DB_PREFIX_ . 'contact`
+                         WHERE `deleted` = 0 ORDER BY `id_contact` ASC'
+                    );
+                    $contactId = $contactRow ? (int) $contactRow['id_contact'] : 1;
+
                     Db::getInstance()->execute('
                         INSERT INTO `' . _DB_PREFIX_ . 'customer_thread`
                         (`id_shop`, `id_lang`, `id_contact`, `id_customer`, `id_order`, `id_product`,
@@ -119,7 +130,9 @@ class QuickCheckoutProcessorderModuleFrontController extends ModuleFrontControll
                         VALUES (
                             ' . (int) $this->context->shop->id . ',
                             ' . (int) $this->context->language->id . ',
-                            0, ' . (int) $customer->id . ', ' . (int) $orderId . ', 0,
+                            ' . $contactId . ',
+                            ' . (int) $customer->id . ',
+                            ' . (int) $orderId . ', 0,
                             \'open\',
                             \'' . pSQL($customer->email) . '\',
                             \'' . pSQL(Tools::passwdGen(12)) . '\',
@@ -128,23 +141,23 @@ class QuickCheckoutProcessorderModuleFrontController extends ModuleFrontControll
                     ');
 
                     $threadId = (int) Db::getInstance()->Insert_ID();
-
                     if ($threadId) {
                         Db::getInstance()->execute('
                             INSERT INTO `' . _DB_PREFIX_ . 'customer_message`
-                            (`id_customer_thread`, `id_employee`, `id_customer`, `message`,
+                            (`id_customer_thread`, `id_employee`, `message`,
                              `ip_address`, `date_add`, `date_upd`, `read`, `private`)
                             VALUES (
-                                ' . $threadId . ', 0, ' . (int) $customer->id . ',
+                                ' . $threadId . ', 0,
                                 \'' . pSQL($message) . '\',
-                                \'' . pSQL(Tools::getRemoteAddr()) . '\',
+                                \'' . pSQL(substr(Tools::getRemoteAddr(), 0, 16)) . '\',
                                 NOW(), NOW(), 0, 0
                             )
                         ');
                     }
                 } catch (Exception $e) {
-                    PrestaShopLogger::addLog('QuickCheckout: error al guardar mensaje del pedido: ' . $e->getMessage(), 2);
+                    PrestaShopLogger::addLog('QuickCheckout customer_thread error: ' . $e->getMessage(), 2);
                 }
+
             }
 
             $confirmUrl = $this->context->link->getPageLink(
