@@ -65,23 +65,23 @@ class QuickCheckoutCheckoutModuleFrontController extends ModuleFrontController
 
         if ($totalCount > 1) {
             $billingAddrs  = array_values(array_filter($allAddresses, function ($a) {
-                return strtolower(trim($a['firstname'])) === 'facturacio';
+                return strtolower(trim($a['alias'])) === 'facturacion';
             }));
             $shippingAddrs = array_values(array_filter($allAddresses, function ($a) {
-                return strtolower(trim($a['firstname'])) === 'entrega';
+                return strtolower(trim($a['alias'])) === 'entrega';
             }));
 
             if (count($billingAddrs) > 1) {
-                $billingConfigError = $this->module->l('Configuración incorrecta: hay más de una dirección de facturación (Facturacio). Solo puede existir una. Contacta con el administrador para corregirlo.');
+                $billingConfigError = $this->module->l('Configuración incorrecta: hay más de una dirección con alias FACTURACION. Solo puede existir una. Contacta con el administrador para corregirlo.');
                 $addresses          = [];
             } elseif (count($billingAddrs) === 0) {
-                $billingConfigError = $this->module->l('Configuración incorrecta: no hay ninguna dirección de facturación (Facturacio). Debes tener exactamente una. Contacta con el administrador para corregirlo.');
+                $billingConfigError = $this->module->l('Configuración incorrecta: no hay ninguna dirección con alias FACTURACION. Debes tener exactamente una. Contacta con el administrador para corregirlo.');
                 $addresses          = [];
             } elseif (count($shippingAddrs) === 0) {
-                $billingConfigError = $this->module->l('Configuración incorrecta: no hay ninguna dirección de envío (Entrega). Debes tener al menos una. Contacta con el administrador para corregirlo.');
+                $billingConfigError = $this->module->l('Configuración incorrecta: no hay ninguna dirección con alias ENTREGA. Debes tener al menos una. Contacta con el administrador para corregirlo.');
                 $addresses          = [];
             } else {
-                // VÁLIDO: exactamente 1 Facturacio + 1 o más Entrega
+                // VÁLIDO: exactamente 1 FACTURACION + 1 o más ENTREGA
                 $addresses     = $shippingAddrs;
                 $billingAddrId = (int) $billingAddrs[0]['id_address'];
             }

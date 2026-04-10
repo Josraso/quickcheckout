@@ -33,27 +33,27 @@ class QuickCheckoutProcessorderModuleFrontController extends ModuleFrontControll
             $this->jsonError($this->module->l('Tu carrito está vacío.'));
         }
 
-        // Validar configuración de direcciones cuando hay 2+ (debe haber exactamente 1 Facturacio y 1+ Entrega)
+        // Validar configuración de direcciones cuando hay 2+ (debe haber exactamente 1 FACTURACION y 1+ ENTREGA)
         $allAddressesCheck = $customer->getAddresses($this->context->language->id);
         if (count($allAddressesCheck) > 1) {
             $facturacioCount = 0;
             $entregaCount    = 0;
             foreach ($allAddressesCheck as $a) {
-                $fn = strtolower(trim($a['firstname']));
-                if ($fn === 'facturacio') {
+                $fn = strtolower(trim($a['alias']));
+                if ($fn === 'facturacion') {
                     $facturacioCount++;
                 } elseif ($fn === 'entrega') {
                     $entregaCount++;
                 }
             }
             if ($facturacioCount > 1) {
-                $this->jsonError($this->module->l('Configuración incorrecta: hay más de una dirección de facturación (Facturacio). Contacta con el administrador.'));
+                $this->jsonError($this->module->l('Configuración incorrecta: hay más de una dirección con alias FACTURACION. Contacta con el administrador.'));
             }
             if ($facturacioCount === 0) {
-                $this->jsonError($this->module->l('Configuración incorrecta: no hay ninguna dirección de facturación (Facturacio). Contacta con el administrador.'));
+                $this->jsonError($this->module->l('Configuración incorrecta: no hay ninguna dirección con alias FACTURACION. Contacta con el administrador.'));
             }
             if ($entregaCount === 0) {
-                $this->jsonError($this->module->l('Configuración incorrecta: no hay ninguna dirección de envío (Entrega). Contacta con el administrador.'));
+                $this->jsonError($this->module->l('Configuración incorrecta: no hay ninguna dirección con alias ENTREGA. Contacta con el administrador.'));
             }
         }
 
@@ -67,10 +67,10 @@ class QuickCheckoutProcessorderModuleFrontController extends ModuleFrontControll
                 $this->jsonError($this->module->l('La dirección seleccionada no es válida.'));
             }
 
-            // Buscar facturación: primera dirección con firstname "Facturacio" distinta a la de envío.
+            // Buscar facturación: primera dirección con alias "FACTURACION" distinta a la de envío.
             $allAddresses = $customer->getAddresses($this->context->language->id);
             foreach ($allAddresses as $addr) {
-                if (strtolower(trim($addr['firstname'])) === 'facturacio'
+                if (strtolower(trim($addr['alias'])) === 'facturacion'
                     && (int) $addr['id_address'] !== $addressId) {
                     $billingAddrId = (int) $addr['id_address'];
                     break;
